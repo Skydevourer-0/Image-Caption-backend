@@ -2,36 +2,43 @@ package com.example.imagecaptionbackend.entity;
 
 import jakarta.persistence.*;
 
-import java.util.List;
-
 @Entity
 @Table(name = "user")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
-    @Column(unique = true,name = "username")
+    @Column(unique = true, name = "username")
     private String username;
     @Column(name = "password")
     private String password;
 
-    // TODO:维护用户-图片的一对多关系
-    @OneToMany(targetEntity = Image.class, mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "images",referencedColumnName = "image_id")
-    private List<Image> images;
+    @Column(name = "role")
+    private String role;
 
-    public User(String username, String password) {
+    public User(String username, String password, String role) {
         this.username = username;
         this.password = password;
+        this.role = role;
     }
 
-    public User() {}
+    public User() {
+    }
+
+    public Long getId() {
+        return id;
+    }
 
     public String getPassword() {
         return password;
     }
 
-    public List<Image> getImages() {
-        return images;
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getRole() {
+        return role;
     }
 }
