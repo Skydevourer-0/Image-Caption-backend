@@ -7,27 +7,23 @@ import jakarta.persistence.*;
 public class Image {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
-    @Column(name = "name")
-    private String name;
     @Lob
     @Column(name = "data")
     private byte[] data;
     @Column(name = "label_1")
     private String label_1;
 
-    // TODO:维护图片-用户的多对一关系
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    public Image(String name, byte[] data, User user) {
-        this.name = name;
+    public Image(byte[] data) {
         this.data = data;
-        this.user = user;
     }
 
     public Image() {
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public byte[] getData() {
@@ -40,5 +36,9 @@ public class Image {
 
     public void setLabel_1(String label) {
         this.label_1 = label;
+    }
+
+    public boolean isCaptioned() {
+        return label_1 != null && !label_1.isEmpty();
     }
 }

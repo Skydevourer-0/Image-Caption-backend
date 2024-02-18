@@ -1,9 +1,14 @@
 package com.example.imagecaptionbackend.service;
 
-import com.example.imagecaptionbackend.entity.*;
+import com.example.imagecaptionbackend.entity.Image;
+import com.example.imagecaptionbackend.entity.UserImage;
 import com.example.imagecaptionbackend.repository.ImageRepository;
+import com.example.imagecaptionbackend.repository.UserImageRepository;
 import com.example.imagecaptionbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -13,28 +18,49 @@ import java.util.Base64;
 @Service
 public class ImageService {
     @Autowired
-    public ImageRepository imageRepository;
-    public UserRepository userRepository;
+    private ImageRepository imageRepository;
+    @Autowired
+    private UserImageRepository userImageRepository;
 
-    public void createImage(String name, byte[] data, Long userId) {
-        User user = userRepository.findById(userId).orElse(null);
-        if (user == null) {
-            throw new IllegalArgumentException("User does not exist");
+    public void createImage(Long userId, byte[] data) {
+        Image image = imageRepository.save(new Image(data));
+        Long imageId = image.getId();
+        UserImage userImage = new UserImage(userId, imageId);
+        userImageRepository.save(userImage);
+    }
+
+    public void deleteImage(String role, Long imageId) {
+        if(role.equals("admin"))
+            imageRepository.deleteById(imageId);
+        else {
+            userImageRepository.deleteByImageId(imageId);
         }
-        Image image = new Image(name, data, user);
-        // TODO: 这样是否将图片插入到用户的图片列表中了？
-        user.getImages().add(image);
-        imageRepository.save(image);
     }
 
-    public void deleteImage(Long id) {
-        imageRepository.deleteById(id);
-    }
-
-    public void captionImage(int mode, Long id) {
+    public Image getImage(Long id) {
         Image image = imageRepository.findById(id).orElse(null);
         if (image == null) {
             throw new IllegalArgumentException("Image does not exist");
+        }
+        return image;
+    }
+
+    public Page<Image> getUserImages(Long userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return userImageRepository.findByUserId(userId, pageable);
+    }
+
+    public Page<Image> getAllImages(int page,int size){
+        Pageable pageable = PageRequest.of(page, size);
+        return imageRepository.findAll(pageable);
+    }
+
+    public String captionImage(int mode, Long id) {
+        Image image = getImage(id);
+        if (image.isCaptioned()) {
+            return switch (mode) {
+                default -> image.getLabel_1();
+            };
         }
         byte[] data = image.getData();
         try {
@@ -57,16 +83,9 @@ public class ImageService {
             // 设置标签
             image.setLabel_1(label);
             imageRepository.save(image);
+            return label;
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException("Caption failed");
         }
-    }
-
-    public String getLabel(Long id) {
-        Image image = imageRepository.findById(id).orElse(null);
-        if (image == null) {
-            throw new IllegalArgumentException("Image does not exist");
-        }
-        return image.getLabel_1();
     }
 }
