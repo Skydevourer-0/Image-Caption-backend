@@ -2,13 +2,13 @@ package com.example.imagecaptionbackend.controller;
 
 import com.example.imagecaptionbackend.service.ImageService;
 import io.swagger.annotations.Api;
-import jakarta.servlet.http.HttpServletRequest;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Api(tags = "图像管理")
 @RestController
@@ -18,7 +18,9 @@ public class ImageController {
     private ImageService imageService;
 
     @PostMapping("/upload")
-    public ResponseEntity<?> uploadImage(byte[] data, HttpServletRequest request) {
+    public ResponseEntity<?> uploadImage(
+            @ApiParam(value = "图像数据", required = true, example = "略") @RequestParam byte[] data,
+            @ApiIgnore HttpServletRequest request) {
         Long userId = (Long) request.getSession().getAttribute("userId");
         if (userId == null) {
             return ResponseEntity.badRequest().body("Please login first");
@@ -32,7 +34,9 @@ public class ImageController {
     }
 
     @PostMapping("/delete")
-    public ResponseEntity<?> deleteImage(Long id, HttpServletRequest request) {
+    public ResponseEntity<?> deleteImage(
+            @ApiParam(value = "图像id", required = true, example = "略") @RequestParam Long id,
+            @ApiIgnore HttpServletRequest request) {
         String role = (String) request.getSession().getAttribute("role");
         if (role == null) {
             return ResponseEntity.badRequest().body("Please login first");
@@ -46,7 +50,7 @@ public class ImageController {
     }
 
     @GetMapping("/one")
-    public ResponseEntity<?> getImage(Long id) {
+    public ResponseEntity<?> getImage(@ApiParam(value = "图像id", required = true, example = "略") Long id) {
         try {
             return ResponseEntity.ok(imageService.getImage(id));
         } catch (Exception e) {
@@ -55,7 +59,10 @@ public class ImageController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<?> getUserImages(int page, int size, HttpServletRequest request) {
+    public ResponseEntity<?> getUserImages(
+            @ApiParam(value = "查询页数", required = true, example = "1") int page,
+            @ApiParam(value = "页面大小", required = true, example = "10") int size,
+            @ApiIgnore HttpServletRequest request) {
         Long userId = (Long) request.getSession().getAttribute("userId");
         if (userId == null) {
             return ResponseEntity.badRequest().body("Please login first");
@@ -68,7 +75,11 @@ public class ImageController {
     }
 
     @GetMapping("/admin")
-    public ResponseEntity<?> getAllImages(Long userId, int page, int size, HttpServletRequest request) {
+    public ResponseEntity<?> getAllImages(
+            @ApiParam(value = "用户id", required = true, example = "略") Long userId,
+            @ApiParam(value = "查询页数", required = true, example = "1") int page,
+            @ApiParam(value = "页面大小", required = true, example = "10") int size,
+            @ApiIgnore HttpServletRequest request) {
         String role = (String) request.getSession().getAttribute("role");
         if (role == null) {
             return ResponseEntity.badRequest().body("Please login first");
@@ -83,7 +94,9 @@ public class ImageController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<?> getAllImages(int page, int size) {
+    public ResponseEntity<?> getAllImages(
+            @ApiParam(value = "查询页数", required = true, example = "1") int page,
+            @ApiParam(value = "页面大小", required = true, example = "10") int size) {
         try {
             return ResponseEntity.ok(imageService.getAllImages(page, size));
         } catch (Exception e) {
@@ -92,7 +105,9 @@ public class ImageController {
     }
 
     @PostMapping("/caption")
-    public ResponseEntity<?> captionImage(int mode, Long id) {
+    public ResponseEntity<?> captionImage(
+            @ApiParam(value = "描述模式", required = true, example = "1") @RequestParam int mode,
+            @ApiParam(value = "图像id", required = true, example = "略") @RequestParam Long id) {
         try {
             String label = imageService.captionImage(mode, id);
             return ResponseEntity.ok(label);

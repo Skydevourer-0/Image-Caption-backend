@@ -1,8 +1,12 @@
 package com.example.imagecaptionbackend.entity;
 
-import jakarta.persistence.*;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+import javax.persistence.*;
 
 @Entity
+@ApiModel("图像实体类")
 @Table(name = "image")
 public class Image {
     @Id
@@ -10,9 +14,11 @@ public class Image {
     @Column(name = "id")
     private Long id;
     @Lob
+    @ApiModelProperty(value = "图像数据", required = true, example = "略")
     @Column(name = "data")
     private byte[] data;
-    @Column(name = "label_1")
+    @ApiModelProperty(value = "标签", required = false, example = "略")
+    @Column(name = "label1")
     private String label_1;
 
     public Image(byte[] data) {

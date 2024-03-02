@@ -3,13 +3,13 @@ package com.example.imagecaptionbackend.controller;
 import com.example.imagecaptionbackend.entity.User;
 import com.example.imagecaptionbackend.service.UserService;
 import io.swagger.annotations.Api;
-import jakarta.servlet.http.HttpServletRequest;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Api(tags = "用户管理")
 @RestController
@@ -19,7 +19,7 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("/profile")
-    public ResponseEntity<?> getProfile(HttpServletRequest request) {
+    public ResponseEntity<?> getProfile(@ApiIgnore HttpServletRequest request) {
         String username = (String) request.getSession().getAttribute("username");
         if (username == null) {
             return ResponseEntity.badRequest().body("Please login first");
@@ -29,7 +29,10 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(String username, String password, int role) {
+    public ResponseEntity<?> registerUser(
+            @ApiParam(value = "用户名", required = true, example = "username") @RequestParam String username,
+            @ApiParam(value = "密码", required = true, example = "password") @RequestParam String password,
+            @ApiParam(value = "角色", required = true, example = "0 代表管理员, 1 代表用户") @RequestParam int role) {
         try {
             User user = userService.registerUser(username, password, role);
             return ResponseEntity.ok(user);
@@ -39,7 +42,10 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(String username, String password, HttpServletRequest request) {
+    public ResponseEntity<?> login(
+            @ApiParam(value = "用户名", required = true, example = "username") @RequestParam String username,
+            @ApiParam(value = "密码", required = true, example = "password") @RequestParam String password,
+            @ApiIgnore HttpServletRequest request) {
         try {
             User user = userService.login(username, password);
             request.getSession().setAttribute("userId", user.getId());
@@ -52,7 +58,7 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletRequest request) {
+    public ResponseEntity<?> logout(@ApiIgnore HttpServletRequest request) {
         request.getSession().removeAttribute("userId");
         request.getSession().removeAttribute("username");
         request.getSession().removeAttribute("role");
@@ -60,7 +66,10 @@ public class UserController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<?> updateUser(String username, String password, HttpServletRequest request) {
+    public ResponseEntity<?> updateUser(
+            @ApiParam(value = "用户名", required = true, example = "username") @RequestParam String username,
+            @ApiParam(value = "密码", required = true, example = "password") @RequestParam String password,
+            @ApiIgnore HttpServletRequest request) {
         String curUsername = (String) request.getSession().getAttribute("username");
         if (curUsername == null) {
             return ResponseEntity.badRequest().body("Please login first");
@@ -76,7 +85,9 @@ public class UserController {
     }
 
     @PostMapping("/delete")
-    public ResponseEntity<?> deleteUser(String username, HttpServletRequest request) {
+    public ResponseEntity<?> deleteUser(
+            @ApiParam(value = "用户名", required = true, example = "username") @RequestParam String username,
+            @ApiIgnore HttpServletRequest request) {
         String role = (String) request.getSession().getAttribute("role");
         if (role == null) {
             return ResponseEntity.badRequest().body("Please login first");
@@ -90,7 +101,9 @@ public class UserController {
     }
 
     @GetMapping("/one")
-    public ResponseEntity<?> getUser(String username, HttpServletRequest request) {
+    public ResponseEntity<?> getUser(
+            @ApiParam(value = "用户名", required = true, example = "username") String username,
+            @ApiIgnore HttpServletRequest request) {
         String role = (String) request.getSession().getAttribute("role");
         if (role == null) {
             return ResponseEntity.badRequest().body("Please login first");
@@ -103,7 +116,10 @@ public class UserController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<?> getAllUsers(int page, int size, HttpServletRequest request) {
+    public ResponseEntity<?> getAllUsers(
+            @ApiParam(value = "查询页数", required = true, example = "1") int page,
+            @ApiParam(value = "页面大小", required = true, example = "10") int size,
+            @ApiIgnore HttpServletRequest request) {
         String role = (String) request.getSession().getAttribute("role");
         if (role == null) {
             return ResponseEntity.badRequest().body("Please login first");
