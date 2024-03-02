@@ -4,7 +4,6 @@ import com.example.imagecaptionbackend.entity.Image;
 import com.example.imagecaptionbackend.entity.UserImage;
 import com.example.imagecaptionbackend.repository.ImageRepository;
 import com.example.imagecaptionbackend.repository.UserImageRepository;
-import com.example.imagecaptionbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -58,9 +57,7 @@ public class ImageService {
     public String captionImage(int mode, Long id) {
         Image image = getImage(id);
         if (image.isCaptioned()) {
-            return switch (mode) {
-                default -> image.getLabel_1();
-            };
+            return image.getLabel_1();
         }
         byte[] data = image.getData();
         try {
