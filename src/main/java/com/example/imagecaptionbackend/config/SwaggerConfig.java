@@ -2,39 +2,40 @@ package com.example.imagecaptionbackend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.oas.annotations.EnableOpenApi;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+import java.util.ArrayList;
 
 @Configuration
-@EnableSwagger2
+@EnableOpenApi
 public class SwaggerConfig {
     @Bean
-    public Docket createRestApi() {
-        return new Docket(DocumentationType.SWAGGER_2)
+    public Docket docket() {
+        return new Docket(DocumentationType.OAS_30)
                 .apiInfo(apiInfo())
+                .enable(true)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.example.imagecaptionbackend.controller"))
                 .build();
     }
 
+    @SuppressWarnings("all")
     private ApiInfo apiInfo() {
-        Contact contact = new Contact(
-                "Sky-devourer",
-                "http://localhost:8080/swagger-ui.html",
-                "skydevourer@foxmail.com"
+        Contact contact = new Contact("ICB", "http://localhost:8080/swagger-ui/index.html", "skydevourer@foxmail.com");
+        return new ApiInfo(
+                "Image Caption Backend API",
+                "This is a backend service for image captioning.",
+                "v1.0",
+                "http://localhost:8080/swagger-ui/index.html",
+                contact,
+                "MIT License",
+                "http://www.apache.org/licenses/MIT",
+                new ArrayList()
         );
-        return new ApiInfoBuilder()
-                .title("Image Caption Backend API")
-                .description("图片描述项目后端接口文档")
-                .version("1.0")
-                .license("MIT")
-                .licenseUrl("https://mit-license.org")
-                .contact(contact)
-                .build();
     }
 }
